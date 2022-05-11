@@ -20,7 +20,7 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
-// connect to database
+// function to connect to database
 async function run() {
     try {
         // connect to services data
