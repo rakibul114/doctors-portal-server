@@ -46,11 +46,8 @@ async function run() {
       // All Collections
         await client.connect();
       const serviceCollection = client.db('doctors_portal').collection('services');
-
-      const bookingCollection = client.db('doctors_portal').collection('bookings');
-      
+      const bookingCollection = client.db('doctors_portal').collection('bookings');      
       const userCollection = client.db('doctors_portal').collection('users');
-
       const doctorCollection = client.db('doctors_portal').collection('doctors');
 
       const verifyAdmin = async (req, res, next) => {
