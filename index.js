@@ -2,10 +2,11 @@ const express = require("express");
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const res = require("express/lib/response");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 6000;
 
 
 // middleware
@@ -65,6 +66,18 @@ async function run() {
         }
       };
       
+      // POST API to add payment getway
+      app.post('/create-payment-intent', verifyJWT, async (req, res) => {
+        const service = req.body;
+        const price = service.price;
+        const amount = price * 100;
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: amount,
+          currency: 'usd',
+          payment_method_types: ['card']
+        });
+        res.send({ clientSecret: paymentIntent.client_secret });
+      });
 
 
         // get all data from database
@@ -159,6 +172,15 @@ async function run() {
           return res.status(403).send({ message: 'Forbidden access' });
         }
       });
+
+      // API to get a booking by id
+      app.get('/booking/:id', verifyJWT, async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: ObjectId(id) };
+        const booking = await bookingCollection.findOne(query);
+        res.send(booking);
+      });
+
       
       // POST to add a new booking
       app.post('/booking', async (req, res) => {
